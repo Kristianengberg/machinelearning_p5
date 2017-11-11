@@ -12,27 +12,30 @@ class QFunction:
         self.replay_memory = []
         self.learning_rate = 0
         self.reward = 0
-        self.rewards_gotten = []
+        self.rewards_memory = []
         self.old_q = 0
 
-    def initializer(self, how_many_weights, discount_value, learning_rate, reward):
+    def initializer(self, how_many_weights, discount_value, learning_rate, reward_memory, replay_memory):
         self.discount_value = discount_value
         self.learning_rate = learning_rate
-        self.reward = reward
+        self.rewards_memory = reward_memory
+        self.replay_memory = replay_memory
 
         for _ in range(how_many_weights):
             self.weights.append(random.uniform(0.1, how_many_weights))
 
 
 
-    def q_function(self, observation):
-        self.replay_memory = observation
-        q_value = 0
-        for i in range(len(observation)):
-            q_value += self.weights[i] * observation[i]
+    def q_function(self):
 
-        print(q_value)
-        self.old_q = q_value
+        q_value = 0
+        for i in range(0,len(self.replay_memory),4):
+            for j in range(len(self.weights)):
+                q_value += self.weights[j] * self.replay_memory[i+j]
+                print(q_value)
+
+
+
         return q_value
 
 
@@ -56,13 +59,11 @@ env = gym.make('CartPole-v0')
 env.reset()
 #obs = env.reset()
 
-#this_function = QFunction()
-
-#this_function.initializer(how_many_weights=4, discount_value=0.95, learning_rate=0.95, reward=1)
-#this_function.q_function(obs)
+this_function = QFunction()
 
 
-#print(this_function.weights)
+
+
 
 def initial_pop():
     replay_memory = []
@@ -80,3 +81,6 @@ def initial_pop():
 
 replay_memory, reward_memory = initial_pop()
 
+this_function.initializer(how_many_weights=4, discount_value=0.95, learning_rate=0.95, replay_memory=replay_memory, reward_memory=reward_memory)
+
+this_function.q_function()
