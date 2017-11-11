@@ -2,6 +2,8 @@ import random
 import matplotlib as plt
 import gym
 
+amount_of_games = 50
+amount_of_steps = 200
 
 class QFunction:
     def __init__(self):
@@ -51,12 +53,30 @@ class QFunction:
         return self.weights
 
 env = gym.make('CartPole-v0')
-obs = env.reset()
+env.reset()
+#obs = env.reset()
 
-this_function = QFunction()
+#this_function = QFunction()
 
-this_function.initializer(how_many_weights=4, discount_value=0.95, learning_rate=0.95, reward=1)
-this_function.q_function(obs)
+#this_function.initializer(how_many_weights=4, discount_value=0.95, learning_rate=0.95, reward=1)
+#this_function.q_function(obs)
 
 
-print(this_function.weights)
+#print(this_function.weights)
+
+def initial_pop():
+    replay_memory = []
+    reward_memory = []
+
+    for _ in range(amount_of_games):
+        env.reset()
+        for _ in range(amount_of_steps):
+            observation, reward, done, info = env.step(env.action_space.sample())
+            replay_memory.append(observation)
+            reward_memory.append(reward)
+            if done: break
+
+    return replay_memory, reward_memory
+
+replay_memory, reward_memory = initial_pop()
+
