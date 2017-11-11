@@ -2,8 +2,8 @@ import random
 import matplotlib as plt
 import gym
 
-amount_of_games = 50
-amount_of_steps = 200
+amount_of_games = 10
+amount_of_steps = 10
 
 class QFunction:
     def __init__(self):
@@ -31,10 +31,8 @@ class QFunction:
         q_value = 0
         for i in range(0,len(self.replay_memory),4):
             for j in range(len(self.weights)):
-                q_value += self.weights[j] * self.replay_memory[i+j]
-                print(q_value)
-
-
+                weight_func = self.weights[j] * self.replay_memory[i+j]
+                q_value = weight_func + q_value
 
         return q_value
 
@@ -83,4 +81,4 @@ replay_memory, reward_memory = initial_pop()
 
 this_function.initializer(how_many_weights=4, discount_value=0.95, learning_rate=0.95, replay_memory=replay_memory, reward_memory=reward_memory)
 
-this_function.q_function()
+print(this_function.q_function())
