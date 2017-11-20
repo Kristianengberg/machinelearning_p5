@@ -2,8 +2,11 @@ import random
 import matplotlib as plt
 import gym
 
-amount_of_games = 10
-amount_of_steps = 10
+amount_of_games = 100
+amount_of_steps = 200
+games_per_update = 10
+
+epsilon = 0
 
 class QFunction:
     def __init__(self):
@@ -32,7 +35,7 @@ class QFunction:
         for i in range(0,len(self.replay_memory),4):
             for j in range(len(self.weights)):
                 weight_func = self.weights[j] * self.replay_memory[i+j]
-                q_value = weight_func + q_value
+                q_value += weight_func
 
         return q_value
 
@@ -40,25 +43,22 @@ class QFunction:
     def reward_function(self, reward_gotten):
         'reward_funciton'
         q_reward = 0
-        self.rewards_gotten.append(reward_gotten)
-        q_reward = reward_gotten[1] + self.discount_value*self.q_function(self.replay_memory)-self.old_q
+        for rewards in reward_memory:
+            q_reward = reward_gotten[rewards] + self.discount_value*self.q_function(self.replay_memory)-self.old_q
 
         return q_reward
 
-    def weight_function(self):
+    def weight_function(self, obs):
 
         for i in range(len(self.weights)):
             self.weights[i] = self.weights + self.learning_rate*self.reward_function()*self.replay_memory[i]
+            print(self.weights[i])
 
-
-        return self.weights
 
 env = gym.make('CartPole-v0')
 env.reset()
-#obs = env.reset()
 
 this_function = QFunction()
-
 
 
 
@@ -77,8 +77,36 @@ def initial_pop():
 
     return replay_memory, reward_memory
 
-replay_memory, reward_memory = initial_pop()
 
-this_function.initializer(how_many_weights=4, discount_value=0.95, learning_rate=0.95, replay_memory=replay_memory, reward_memory=reward_memory)
 
-print(this_function.q_function())
+
+
+for _ in range(amount_of_games):
+    reward_memory = []
+    obs_memory = []
+    for _ in range(games_per_update):
+
+        for _ in range(amount_of_steps):
+            env.render()
+
+            if random.uniform(0, 1) >= epsilon:
+                observation, reward, done, info = env.step(random.randrange(0, 2))
+                obs_memory.append(observation)
+                reward_memory.append(reward)
+                if done: break
+            else:
+                observation, reward, done, info = env.step(this_function.q_function())
+
+                obs_memory.append(observation)
+                reward_memory.append(reward)
+
+                if done: break
+        this_function.reward_function(reward_memory)
+        this_function.weight_function(obs=obs_memory)
+    epsilon += 0.05
+
+
+
+
+
+
